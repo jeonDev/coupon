@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CouponBasicServiceImpl implements CouponService {
     private static final Long COUPON_ISSUE_CNT = -1L;
+    private static final Long MAX_COUPON_CNT = 0L;
 
     private final CouponRepository couponRepository;
     private final CouponStockRepository couponStockRepository;
@@ -30,6 +31,7 @@ public class CouponBasicServiceImpl implements CouponService {
     }
 
     @Override
+    @Transactional
     public void couponStockAdjustments(CouponStockAdjustmentsDto dto) {
         // 1. Coupon 존재 여부 체크
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
@@ -61,7 +63,14 @@ public class CouponBasicServiceImpl implements CouponService {
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
 
         // 3. Coupon 재고 수량 체크
-        CouponStock couponStock = couponStockRepository.findById(coupon.getCouponId()).orElseThrow(() -> new RuntimeException("재고수량없음"));
+        CouponStock couponStock = couponStockRepository.findById(coupon.getCouponId()).orElseThrow(() -> new IllegalStateException("재고 수량 없음"));
+        log.info("현재 재고 수량 {}", couponStock.getStock());
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        if(couponStock.getStock() <= MAX_COUPON_CNT) throw new IllegalStateException("재고 수량 부족");
 
         // 4. 재고 수량 차감
         couponStock.updateStock(COUPON_ISSUE_CNT);
