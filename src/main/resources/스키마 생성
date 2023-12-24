@@ -1,0 +1,10 @@
+/* 여기부터 계정 생성 */
+create database coupon_system default character set UTF8;
+
+CREATE USER coupon_system@'%' IDENTIFIED BY 'coupon_system' ;
+
+grant all privileges on coupon_system.* to 'coupon_system'@'%';
+
+FLUSH PRIVILEGES;
+/* 여기까지 */
+
