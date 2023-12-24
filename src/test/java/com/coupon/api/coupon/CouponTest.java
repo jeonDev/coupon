@@ -14,13 +14,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class CouponTest {
 
     @Autowired
-    private CouponService couponService;
+    private CouponService couponBasicServiceImpl;
+
+    @Autowired
+    private CouponService couponRedisServiceImpl;
 
     @Autowired
     private UserRepository userRepository;
 
     @Test
-    void 쿠폰정보생성() {
+    void 쿠폰정보생성_Basic() {
         CouponCreateDto dto = new CouponCreateDto();
         dto.setCouponName("테스트1");
         dto.setStartDate("20231201");
@@ -29,19 +32,19 @@ public class CouponTest {
         dto.setEndTime("235959");
         dto.setUseYn("Y");
 
-        couponService.couponCreate(dto);
+        couponBasicServiceImpl.couponCreate(dto);
     }
 
     @Test
-    void 쿠폰재고등록() {
+    void 쿠폰재고등록_Basic() {
         CouponStockAdjustmentsDto dto = new CouponStockAdjustmentsDto();
         dto.setCouponId(1L);
         dto.setStock(100L);
-        couponService.couponStockAdjustments(dto);
+        couponBasicServiceImpl.couponStockAdjustments(dto);
     }
 
     @Test
-    void 사용자쿠폰발급() {
+    void 사용자쿠폰발급_Basic() {
         User user = User.builder()
                 .id("test")
                 .name("테스트")
@@ -51,6 +54,27 @@ public class CouponTest {
         CouponIssueDto dto = new CouponIssueDto();
         dto.setUserId("test");
         dto.setCouponId(1L);
-        couponService.couponIssue(dto);
+        couponBasicServiceImpl.couponIssue(dto);
+    }
+
+    @Test
+    void 쿠폰정보생성_Redis() {
+        CouponCreateDto dto = new CouponCreateDto();
+        dto.setCouponName("테스트2");
+        dto.setStartDate("20231201");
+        dto.setEndDate("20231231");
+        dto.setStartTime("000000");
+        dto.setEndTime("235959");
+        dto.setUseYn("Y");
+
+        couponRedisServiceImpl.couponCreate(dto);
+    }
+
+    @Test
+    void 쿠폰재고등록_Redis() {
+        CouponStockAdjustmentsDto dto = new CouponStockAdjustmentsDto();
+        dto.setCouponId(2L);
+        dto.setStock(100L);
+        couponRedisServiceImpl.couponStockAdjustments(dto);
     }
 }

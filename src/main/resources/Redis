@@ -1,0 +1,10 @@
+docker pull redis
+docker run --name myredis -d -p 6379:6379 redis
+docker ps
+
+docker exec -it 76d00bdcf934(pid) redis-cli
+- Lettuce
+    - setnx 1 lock (setnx (key) lock)
+    - del 1 (del (key))
+
+
