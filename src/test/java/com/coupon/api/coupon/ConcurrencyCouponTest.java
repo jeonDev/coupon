@@ -26,6 +26,9 @@ public class ConcurrencyCouponTest {
     private CouponService couponRedisLettuceProxyServiceImpl;
 
     @Autowired
+    private CouponService couponRedissonProxyServiceImpl;
+
+    @Autowired
     private UserService userService;
 
     @Test
@@ -93,6 +96,28 @@ public class ConcurrencyCouponTest {
             executorService.execute(() -> {
                 try {
                     couponRedisLettuceProxyServiceImpl.couponIssue(dto);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                latch.countDown();
+            });
+        }
+
+        latch.await();
+    }
+
+    @Test
+    void 쿠폰발급_100장_RedissonProxy() throws InterruptedException {
+        ExecutorService executorService = Executors.newFixedThreadPool(COUPON_THREAD_COUNT);
+        CountDownLatch latch = new CountDownLatch(COUPON_THREAD_COUNT);
+
+        for(int i = 0; i < COUPON_THREAD_COUNT; i++) {
+            CouponIssueDto dto = new CouponIssueDto();
+            dto.setUserId("test" + i);
+            dto.setCouponId(4L);
+            executorService.execute(() -> {
+                try {
+                    couponRedissonProxyServiceImpl.couponIssue(dto);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

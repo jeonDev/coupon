@@ -18,8 +18,12 @@ public class CouponTest {
 
     @Autowired
     private CouponService couponRedisLettuceServiceImpl;
+
     @Autowired
     private CouponService couponRedisLettuceProxyServiceImpl;
+
+    @Autowired
+    private CouponService couponRedissonProxyServiceImpl;
 
     @Autowired
     private UserRepository userRepository;
@@ -99,5 +103,26 @@ public class CouponTest {
         dto.setCouponId(3L);
         dto.setStock(100L);
         couponRedisLettuceProxyServiceImpl.couponStockAdjustments(dto);
+    }
+
+    @Test
+    void 쿠폰정보생성_RedissonProxy() {
+        CouponCreateDto dto = new CouponCreateDto();
+        dto.setCouponName("테스트3");
+        dto.setStartDate("20231201");
+        dto.setEndDate("20231231");
+        dto.setStartTime("000000");
+        dto.setEndTime("235959");
+        dto.setUseYn("Y");
+
+        couponRedissonProxyServiceImpl.couponCreate(dto);
+    }
+
+    @Test
+    void 쿠폰재고등록_쿠폰정보생성_RedissonProxy() {
+        CouponStockAdjustmentsDto dto = new CouponStockAdjustmentsDto();
+        dto.setCouponId(4L);
+        dto.setStock(100L);
+        couponRedissonProxyServiceImpl.couponStockAdjustments(dto);
     }
 }

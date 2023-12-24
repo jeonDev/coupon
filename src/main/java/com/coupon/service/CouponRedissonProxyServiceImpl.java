@@ -5,6 +5,7 @@ import com.coupon.entity.user.User;
 import com.coupon.redis.RedisKeyEnum;
 import com.coupon.redis.RedisLettuceLockRepository;
 import com.coupon.redis.RedisLettuceLockTarget;
+import com.coupon.redis.RedissonLockTarget;
 import com.coupon.vo.CouponCreateDto;
 import com.coupon.vo.CouponIssueDto;
 import com.coupon.vo.CouponStockAdjustmentsDto;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CouponRedisLettuceProxyServiceImpl implements CouponService {
+public class CouponRedissonProxyServiceImpl implements CouponService {
 
     private static final Long COUPON_ISSUE_CNT = -1L;
     private static final Long MAX_COUPON_CNT = 0L;
@@ -35,7 +36,7 @@ public class CouponRedisLettuceProxyServiceImpl implements CouponService {
 
     @Override
     @Transactional
-    @RedisLettuceLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
+    @RedissonLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
     public void couponStockAdjustments(CouponStockAdjustmentsDto dto) {
         // 1. Coupon 존재 여부 체크
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
@@ -59,7 +60,7 @@ public class CouponRedisLettuceProxyServiceImpl implements CouponService {
 
     @Override
     @Transactional
-    @RedisLettuceLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
+    @RedissonLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
     public void couponIssue(CouponIssueDto dto) {
         // 1. User 존재 여부 체크
         User user = userService.findByUser(dto.getUserId());
