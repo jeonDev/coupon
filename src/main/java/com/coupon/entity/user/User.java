@@ -1,5 +1,6 @@
 package com.coupon.entity.user;
 
+import com.coupon.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -12,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Table(name = "USER")
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @Column(name = "ID", length = 20)

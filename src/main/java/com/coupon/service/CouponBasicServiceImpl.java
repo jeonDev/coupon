@@ -2,7 +2,6 @@ package com.coupon.service;
 
 import com.coupon.entity.coupon.*;
 import com.coupon.entity.user.User;
-import com.coupon.entity.user.UserRepository;
 import com.coupon.vo.CouponCreateDto;
 import com.coupon.vo.CouponIssueDto;
 import com.coupon.vo.CouponStockAdjustmentsDto;
@@ -15,14 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Service
 public class CouponBasicServiceImpl implements CouponService {
+    private static final Long COUPON_ISSUE_CNT = -1L;
 
     private final CouponRepository couponRepository;
     private final CouponStockRepository couponStockRepository;
     private final CouponStockHistoryRepository couponStockHistoryRepository;
     private final UserCouponRepository userCouponRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    private static final Long COUPON_ISSUE_CNT = -1L;
 
     @Override
     public void couponCreate(CouponCreateDto dto) {
@@ -56,7 +55,7 @@ public class CouponBasicServiceImpl implements CouponService {
     @Transactional
     public void couponIssue(CouponIssueDto dto) {
         // 1. User 존재 여부 체크
-        User user = userRepository.findById(dto.getUserId()).orElseThrow(IllegalArgumentException::new);
+        User user = userService.findByUser(dto.getUserId());
 
         // 2. Coupon 존재 여부 체크
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
