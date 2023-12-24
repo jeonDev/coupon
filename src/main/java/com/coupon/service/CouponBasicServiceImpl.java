@@ -37,7 +37,7 @@ public class CouponBasicServiceImpl implements CouponService {
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
 
         // 2. Coupon Stock 존재여부 체크
-        couponStockRepository.findById(coupon.getCouponId()).ifPresentOrElse(
+        couponStockRepository.findWithPessimisticLockByCouponId(coupon.getCouponId()).ifPresentOrElse(
                 // 2-1. Coupon Stock 존재 -> 재고 조정
                 item -> {
                     CouponStock couponStock = item.updateStock(dto.getStock());
@@ -56,6 +56,7 @@ public class CouponBasicServiceImpl implements CouponService {
     @Override
     @Transactional
     public void couponIssue(CouponIssueDto dto) {
+        log.info(dto.toString());
         // 1. User 존재 여부 체크
         User user = userService.findByUser(dto.getUserId());
 
@@ -63,13 +64,8 @@ public class CouponBasicServiceImpl implements CouponService {
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
 
         // 3. Coupon 재고 수량 체크
-        CouponStock couponStock = couponStockRepository.findById(coupon.getCouponId()).orElseThrow(() -> new IllegalStateException("재고 수량 없음"));
-        log.info("현재 재고 수량 {}", couponStock.getStock());
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        CouponStock couponStock = couponStockRepository.findWithPessimisticLockByCouponId(coupon.getCouponId()).orElseThrow(() -> new IllegalStateException("재고 수량 없음"));
+
         if(couponStock.getStock() <= MAX_COUPON_CNT) throw new IllegalStateException("재고 수량 부족");
 
         // 4. 재고 수량 차감

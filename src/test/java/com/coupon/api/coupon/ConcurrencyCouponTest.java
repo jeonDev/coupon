@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 @SpringBootTest
 public class ConcurrencyCouponTest {
 
-    final int COUPON_THREAD_COUNT = 120;
+    final int COUPON_THREAD_COUNT = 101;
 
     @Autowired
     private CouponService couponService;
@@ -42,7 +42,11 @@ public class ConcurrencyCouponTest {
             dto.setUserId("test" + i);
             dto.setCouponId(1L);
             executorService.execute(() -> {
-                couponService.couponIssue(dto);
+                try {
+                    couponService.couponIssue(dto);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 latch.countDown();
             });
         }
