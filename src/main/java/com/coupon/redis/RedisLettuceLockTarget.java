@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RedisLockTarget {
+public @interface RedisLettuceLockTarget {
     RedisKeyEnum value();
     int delay();
 }

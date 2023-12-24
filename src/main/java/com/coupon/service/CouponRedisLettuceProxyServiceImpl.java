@@ -3,7 +3,8 @@ package com.coupon.service;
 import com.coupon.entity.coupon.*;
 import com.coupon.entity.user.User;
 import com.coupon.redis.RedisKeyEnum;
-import com.coupon.redis.RedisLockRepository;
+import com.coupon.redis.RedisLettuceLockRepository;
+import com.coupon.redis.RedisLettuceLockTarget;
 import com.coupon.vo.CouponCreateDto;
 import com.coupon.vo.CouponIssueDto;
 import com.coupon.vo.CouponStockAdjustmentsDto;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class CouponRedisServiceImpl implements CouponService {
+public class CouponRedisLettuceProxyServiceImpl implements CouponService {
 
     private static final Long COUPON_ISSUE_CNT = -1L;
     private static final Long MAX_COUPON_CNT = 0L;
@@ -25,7 +26,7 @@ public class CouponRedisServiceImpl implements CouponService {
     private final CouponStockHistoryRepository couponStockHistoryRepository;
     private final UserCouponRepository userCouponRepository;
     private final UserService userService;
-    private final RedisLockRepository redisLockRepository;
+    private final RedisLettuceLockRepository redisLockRepository;
 
     @Override
     public void couponCreate(CouponCreateDto dto) {
@@ -34,22 +35,9 @@ public class CouponRedisServiceImpl implements CouponService {
     }
 
     @Override
-    public void couponStockAdjustments(CouponStockAdjustmentsDto dto) {
-
-        // 1. Redis Lock
-        this.redisLock(RedisKeyEnum.COUPON_STOCK);
-
-        try {
-            // 2. Logic
-            this.couponStockAdjustmentsRedis(dto);
-        } finally {
-            // 3. Redis UnLock
-            redisLockRepository.unlock(RedisKeyEnum.COUPON_STOCK);
-        }
-    }
-
     @Transactional
-    public void couponStockAdjustmentsRedis(CouponStockAdjustmentsDto dto) {
+    @RedisLettuceLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
+    public void couponStockAdjustments(CouponStockAdjustmentsDto dto) {
         // 1. Coupon 존재 여부 체크
         Coupon coupon = couponRepository.findById(dto.getCouponId()).orElseThrow(IllegalArgumentException::new);
 
@@ -71,20 +59,9 @@ public class CouponRedisServiceImpl implements CouponService {
     }
 
     @Override
-    public void couponIssue(CouponIssueDto dto) {
-        // 1. Redis Lock
-        this.redisLock(RedisKeyEnum.COUPON_STOCK);
-        try {
-            // 2. Logic
-            this.couponIssueRedis(dto);
-        } finally {
-            // 3. Redis UnLock
-            redisLockRepository.unlock(RedisKeyEnum.COUPON_STOCK);
-        }
-    }
-
     @Transactional
-    public void couponIssueRedis(CouponIssueDto dto) {
+    @RedisLettuceLockTarget(value = RedisKeyEnum.COUPON_STOCK_LETTUCE, delay = 100)
+    public void couponIssue(CouponIssueDto dto) {
         // 1. User 존재 여부 체크
         User user = userService.findByUser(dto.getUserId());
 
@@ -108,16 +85,6 @@ public class CouponRedisServiceImpl implements CouponService {
                 .useStateYn("Y")
                 .build();
         userCouponRepository.save(userCoupon);
-    }
-
-    private void redisLock(RedisKeyEnum key) {
-        while(!redisLockRepository.lock(key)) {
-            try {
-                Thread.sleep(100);  // Spin Lock 방식이 Redis에게 주는 부하를 줄여주기 위함.
-            } catch (InterruptedException e) {
-                log.error("Thread Sleep Exception", e);
-            }
-        }
     }
 
     private void couponStockChange(CouponStock couponStock, Long stock) {

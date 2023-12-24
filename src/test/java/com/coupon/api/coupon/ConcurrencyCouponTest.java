@@ -20,10 +20,10 @@ public class ConcurrencyCouponTest {
     private CouponService couponBasicServiceImpl;
 
     @Autowired
-    private CouponService couponRedisServiceImpl;
+    private CouponService couponRedisLettuceServiceImpl;
 
     @Autowired
-    private CouponService couponRedisProxyServiceImpl;
+    private CouponService couponRedisLettuceProxyServiceImpl;
 
     @Autowired
     private UserService userService;
@@ -60,7 +60,7 @@ public class ConcurrencyCouponTest {
     }
 
     @Test
-    void 쿠폰발급_100장_Redis() throws InterruptedException {
+    void 쿠폰발급_100장_RedisLettuce() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(COUPON_THREAD_COUNT);
         CountDownLatch latch = new CountDownLatch(COUPON_THREAD_COUNT);
 
@@ -70,7 +70,7 @@ public class ConcurrencyCouponTest {
             dto.setCouponId(2L);
             executorService.execute(() -> {
                 try {
-                    couponRedisServiceImpl.couponIssue(dto);
+                    couponRedisLettuceServiceImpl.couponIssue(dto);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -82,7 +82,7 @@ public class ConcurrencyCouponTest {
     }
 
     @Test
-    void 쿠폰발급_100장_RedisProxy() throws InterruptedException {
+    void 쿠폰발급_100장_RedisLettuceProxy() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(COUPON_THREAD_COUNT);
         CountDownLatch latch = new CountDownLatch(COUPON_THREAD_COUNT);
 
@@ -92,7 +92,7 @@ public class ConcurrencyCouponTest {
             dto.setCouponId(3L);
             executorService.execute(() -> {
                 try {
-                    couponRedisProxyServiceImpl.couponIssue(dto);
+                    couponRedisLettuceProxyServiceImpl.couponIssue(dto);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

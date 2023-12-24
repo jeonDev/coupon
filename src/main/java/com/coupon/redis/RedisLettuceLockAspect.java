@@ -14,15 +14,15 @@ import org.springframework.stereotype.Component;
 @Order(1)
 @Slf4j
 @RequiredArgsConstructor
-public class RedisLockAspect {
+public class RedisLettuceLockAspect {
 
-    private final RedisLockRepository redisLockRepository;
+    private final RedisLettuceLockRepository redisLockRepository;
 
-    @Around("@annotation(com.coupon.redis.RedisLockTarget)")
+    @Around("@annotation(com.coupon.redis.RedisLettuceLockTarget)")
     public Object redisLockAspect(ProceedingJoinPoint joinPoint) throws Throwable {
         log.info("Redis Proxy 호출!!");
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        RedisLockTarget redisTarget = signature.getMethod().getAnnotation(RedisLockTarget.class);
+        RedisLettuceLockTarget redisTarget = signature.getMethod().getAnnotation(RedisLettuceLockTarget.class);
         Object result = null;
         try {
             redisLock(redisTarget.value(), redisTarget.delay());

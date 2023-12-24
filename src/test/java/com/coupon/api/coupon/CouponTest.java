@@ -17,9 +17,9 @@ public class CouponTest {
     private CouponService couponBasicServiceImpl;
 
     @Autowired
-    private CouponService couponRedisServiceImpl;
+    private CouponService couponRedisLettuceServiceImpl;
     @Autowired
-    private CouponService couponRedisProxyServiceImpl;
+    private CouponService couponRedisLettuceProxyServiceImpl;
 
     @Autowired
     private UserRepository userRepository;
@@ -60,7 +60,7 @@ public class CouponTest {
     }
 
     @Test
-    void 쿠폰정보생성_Redis() {
+    void 쿠폰정보생성_RedisLettuce() {
         CouponCreateDto dto = new CouponCreateDto();
         dto.setCouponName("테스트2");
         dto.setStartDate("20231201");
@@ -69,19 +69,19 @@ public class CouponTest {
         dto.setEndTime("235959");
         dto.setUseYn("Y");
 
-        couponRedisServiceImpl.couponCreate(dto);
+        couponRedisLettuceServiceImpl.couponCreate(dto);
     }
 
     @Test
-    void 쿠폰재고등록_Redis() {
+    void 쿠폰재고등록_RedisLettuce() {
         CouponStockAdjustmentsDto dto = new CouponStockAdjustmentsDto();
         dto.setCouponId(2L);
         dto.setStock(100L);
-        couponRedisServiceImpl.couponStockAdjustments(dto);
+        couponRedisLettuceServiceImpl.couponStockAdjustments(dto);
     }
 
     @Test
-    void 쿠폰정보생성_RedisProxy() {
+    void 쿠폰정보생성_RedisLettuceProxy() {
         CouponCreateDto dto = new CouponCreateDto();
         dto.setCouponName("테스트3");
         dto.setStartDate("20231201");
@@ -90,14 +90,14 @@ public class CouponTest {
         dto.setEndTime("235959");
         dto.setUseYn("Y");
 
-        couponRedisProxyServiceImpl.couponCreate(dto);
+        couponRedisLettuceProxyServiceImpl.couponCreate(dto);
     }
 
     @Test
-    void 쿠폰재고등록_RedisProxy() {
+    void 쿠폰재고등록_RedisLettuceProxy() {
         CouponStockAdjustmentsDto dto = new CouponStockAdjustmentsDto();
         dto.setCouponId(3L);
         dto.setStock(100L);
-        couponRedisProxyServiceImpl.couponStockAdjustments(dto);
+        couponRedisLettuceProxyServiceImpl.couponStockAdjustments(dto);
     }
 }

@@ -8,7 +8,7 @@ import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
-public class RedisLockRepository {
+public class RedisLettuceLockRepository {
     private final RedisTemplate<String, String> redisTemplate;
     private static final Long TIMEOUT_MILLIS = 3000L;
 

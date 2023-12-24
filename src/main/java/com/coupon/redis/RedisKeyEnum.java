@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum RedisKeyEnum {
 
-    COUPON_STOCK(1L);
+    COUPON_STOCK_LETTUCE(1L);
 
     private final Long key;
 }
