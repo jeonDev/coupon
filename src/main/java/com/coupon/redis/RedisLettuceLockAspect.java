@@ -1,5 +1,6 @@
 package com.coupon.redis;
 
+import io.lettuce.core.RedisException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @RequiredArgsConstructor
 public class RedisLettuceLockAspect {
-
+    private final static int MAX_RETRY_COUNT = 10;
     private final RedisLettuceLockRepository redisLockRepository;
 
     @Around("@annotation(com.coupon.redis.RedisLettuceLockTarget)")
@@ -34,7 +35,10 @@ public class RedisLettuceLockAspect {
     }
 
     private void redisLock(RedisKeyEnum key, int delayTime) {
+        int retryCnt = 0;
         while(!redisLockRepository.lock(key)) {
+            if(retryCnt >= MAX_RETRY_COUNT) throw new RedisException("요청 처리 불가");
+            retryCnt++;
             try {
                 Thread.sleep(delayTime);  // Spin Lock 방식이 Redis에게 주는 부하를 줄여주기 위함.
             } catch (InterruptedException e) {
